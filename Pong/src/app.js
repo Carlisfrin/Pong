@@ -1,5 +1,6 @@
 scorePlayer=0;
 scoreCPU=0;
+message="SCORE 5 BEFORE CPU TO ADVANCE TO MEDIUM";
 var difficulty_level = {
   EASY: 1,
   MEDIUM: 2,
@@ -7,6 +8,10 @@ var difficulty_level = {
 };
 difficulty = difficulty_level.EASY;
 
+function RestartScore(){
+    scoreCPU = 0;
+    scorePlayer = 0;
+}
 
 var MenuLayer = cc.LayerColor.extend({
 
@@ -37,22 +42,22 @@ var MenuLayer = cc.LayerColor.extend({
     },
     pressEasy:function () {
         // Changes difficulty to easy
-        scorePlayer=0;
-        scoreCPU=0;
+        RestartScore();
         difficulty = difficulty_level.EASY;
+        message="SCORE 5 BEFORE CPU TO ADVANCE TO MEDIUM";
         this.removeFromParent();
     },
     pressMedium:function () {
         // Changes difficulty to medium
-        scorePlayer=0;
-        scoreCPU=0;
+        RestartScore();
+        message="SCORE 5 BEFORE CPU TO ADVANCE TO HARD";
         difficulty = difficulty_level.MEDIUM;
         this.removeFromParent();
     },
     pressHard:function () {
         // Changes difficulty to hard
-        scorePlayer=0;
-        scoreCPU=0;
+        RestartScore();
+        message="SCORE 5 BEFORE CPU TO WIN";
         difficulty = difficulty_level.HARD;
         this.removeFromParent();
     }
@@ -90,8 +95,8 @@ var GameLayer = cc.Layer.extend({
         // Initialize variables
         this.speedPlayer = 0;
         this.speedCPU = 0;
-        this.speedBallX = 4;
-        this.speedBallY = 4;
+        this.speedBallX = 5;
+        this.speedBallY = 3;
 
         // Sets the position of the boundaries
         this.upperBound = cc.winSize.height - this.spritePlayer.height;
@@ -138,15 +143,34 @@ var GameLayer = cc.Layer.extend({
         }
     },
 
+    winOrLose: function(){
+        // Win or lose detection
+        if (scorePlayer>4) {
+            if (difficulty==difficulty_level.HARD) {
+                message="CONGRATS! YOU WON!!";
+            } else {
+                difficulty = difficulty + 1;
+                if (difficulty==difficulty_level.MEDIUM){
+                    message="SCORE 5 BEFORE CPU TO ADVANCE TO HARD";
+                } else {
+                    message="SCORE 5 BEFORE CPU TO WIN";
+                }
+                RestartScore();
+            }
+        } else if (scoreCPU>4) {
+            RestartScore();
+        }
+    },
+
     score: function (){
         if (this.spriteBall.x > this.spriteCPU.x){
             // Player scores
             this.spriteBall.setPosition(cc.winSize.width/2,cc.winSize.height/2);
             scorePlayer = scorePlayer + 1;
-            if (difficulty==difficulty_level.EASY){
-                this.spriteCPU.y = cc.winSize.height/2;
-                this.speedBallY = 4;
-            }
+            this.spriteCPU.y = cc.winSize.height/2;
+            this.speedBallX = Math.sign(this.speedBallX)*5;
+            this.speedBallY = Math.sign(this.speedBallY)*3;
+
         } else if (this.spriteBall.x < this.spritePlayer.x){
             // CPU scores
             this.spriteBall.setPosition(cc.winSize.width/2,cc.winSize.height/2);
@@ -156,17 +180,10 @@ var GameLayer = cc.Layer.extend({
                 this.speedBallY = 4;
             }
         }
+        this.winOrLose();
     },
 
-
-
-    update: function (){
-
-        // Player movement
-        if (((this.spritePlayer.y + this.speedPlayer + this.spritePlayer.height/2) < this.upperBound) && ((this.spritePlayer.y + this.speedPlayer - this.spritePlayer.height/2) > this.lowerBound)) {
-            this.spritePlayer.y = this.spritePlayer.y + this.speedPlayer;
-        }
-
+    moveCPU: function (){
         // CPU movement depends on difficulty
         switch (difficulty){
             case difficulty_level.EASY:
@@ -183,27 +200,25 @@ var GameLayer = cc.Layer.extend({
                 break;
             case difficulty_level.MEDIUM:
                 // CPU moves to the place where the ball is
+                //console.log(this.spriteBall.y+" "+this.spriteCPU.y+" "+this.spriteCPU.height/2)
                 if (this.speedBallX<0){
                     this.speedCPU = 0;
-                } else if (this.spriteBall.y>this.spriteCPU.y){
-                    this.speedCPU = 4;
-                } else if (this.spriteBall.y<this.spriteCPU.y){
-                    this.speedCPU = -4;
+                } else if (this.spriteBall.y>this.spriteCPU.y+this.spriteCPU.height/2){
+                    this.speedCPU = 2.5;
+                } else if (this.spriteBall.y<this.spriteCPU.y-this.spriteCPU.height/2){
+                    this.speedCPU = -2.5;
                 } else {
                     this.speedCPU = 0;
                 }
                 break;
             case difficulty_level.HARD:
-                // CPU moves like in medium but tries to hit the ball with the side
-                console.log(this.spriteCPU.x+" "+this.spriteBall.x);
+                // CPU moves like in medium but faster
                 if (this.speedBallX<0){
                     this.speedCPU = 0;
-                } else if (this.spriteBall.y>this.spriteCPU.y){
-                    this.speedCPU = 4;
-                } else if (this.spriteBall.y<this.spriteCPU.y){
-                    this.speedCPU = -4;
-                } else if (this.spriteCPU.x-this.spriteBall.x<4) {
-                    this.speedCPU = -2;
+                } else if (this.spriteBall.y>this.spriteCPU.y+this.spriteCPU.height/2){
+                    this.speedCPU = 3;
+                } else if (this.spriteBall.y<this.spriteCPU.y-this.spriteCPU.height/2){
+                    this.speedCPU = -3;
                 } else {
                     this.speedCPU = 0;
                 }
@@ -212,7 +227,17 @@ var GameLayer = cc.Layer.extend({
         if (((this.spriteCPU.y + this.speedCPU + this.spriteCPU.height/2) < this.upperBound) && ((this.spriteCPU.y + this.speedCPU - this.spriteCPU.height/2) > this.lowerBound)) {
             this.spriteCPU.y = this.spriteCPU.y + this.speedCPU;
         }
+    },
 
+    update: function (){
+
+        // Player movement
+        if (((this.spritePlayer.y + this.speedPlayer + this.spritePlayer.height/2) < this.upperBound) && ((this.spritePlayer.y + this.speedPlayer - this.spritePlayer.height/2) > this.lowerBound)) {
+            this.spritePlayer.y = this.spritePlayer.y + this.speedPlayer;
+        }
+
+        // CPU movement
+        this.moveCPU();
 
         // Collision between ball and wall
         if (((this.spriteBall.y + this.speedBallY + this.spriteBall.height/2) > this.upperBound) || ((this.spriteBall.y + this.speedBallY - this.spriteBall.height/2) < this.lowerBound)) {
@@ -231,19 +256,20 @@ var GameLayer = cc.Layer.extend({
             this.speedBallX =  -1 * this.speedBallX;
         }
 
-        // Ball movement
+        // Ball movement, it becomes a little bit faster with every update
+        this.speedBallX = 1.00001*this.speedBallX
         this.spriteBall.x = this.spriteBall.x + this.speedBallX;
         this.spriteBall.y = this.spriteBall.y + this.speedBallY;
 
         // Score detection
         this.score();
-
     }
 });
 
 
 var BackLayer = cc.Layer.extend({
     scoreBoard:null,
+    panel:null,
     ctor:function () {
         this._super();
 
@@ -258,14 +284,20 @@ var BackLayer = cc.Layer.extend({
         this.scoreBoard.setPosition(cc.winSize.width/2,cc.winSize.height*4/5);
         this.addChild(this.scoreBoard);
 
+        // Panel sprite
+        this.panel = cc.LabelTTF.create("", res.font_ttf, 10, cc.TEXT_ALIGNMENT_CENTER, cc.TEXT_ALIGNMENT_CENTER);
+        this.panel.setPosition(cc.winSize.width/2,cc.winSize.height*197/200);
+        this.addChild(this.panel);
+
         this.scheduleUpdate();
 
         return true;
     },
 
     update:function(){
-        // Scoreboard update
+        // Scoreboard and panel update
         this.scoreBoard.setString(scorePlayer + "          " + scoreCPU);
+        this.panel.setString(message);
     }
 });
 
