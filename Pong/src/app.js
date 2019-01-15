@@ -90,6 +90,19 @@ var GameLayer = cc.Layer.extend({
         if (((this.spriteBall.y + this.speedBallY + this.spriteBall.height/2) > this.upperBound) || ((this.spriteBall.y + this.speedBallY - this.spriteBall.height/2) < this.lowerBound)) {
             this.speedBallY = -1 * this.speedBallY;
         }
+
+        // Colisión pelota-barra
+        var areaBall = this.spriteBall.getBoundingBox();
+        var areaPlayer = this.spritePlayer.getBoundingBox();
+        var areaCPU = this.spriteCPU.getBoundingBox();
+        if( cc.rectIntersectsRect(areaBall, areaPlayer)){
+            this.speedBallY = ( this.spriteBall.y - this.spritePlayer.y ) / 5;
+            this.speedBallX =  -1 * this.speedBallX;
+        } else if (cc.rectIntersectsRect(areaBall, areaCPU)) {
+            this.speedBallY = ( this.spriteBall.y - this.spriteCPU.y ) / 5;
+            this.speedBallX =  -1 * this.speedBallX;
+        }
+
         // Movimiento pelota
         this.spriteBall.x = this.spriteBall.x + this.speedBallX;
         this.spriteBall.y = this.spriteBall.y + this.speedBallY;
