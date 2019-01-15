@@ -1,7 +1,8 @@
 var res = {
     ball_png : "res/ball.png",
     paddle_png : "res/paddle.png",
-    pongbg_png : "res/pongbg.png"
+    pongbg_png : "res/pongbg.png",
+    font_ttf : "res/font.ttf",
 };
 
 var g_resources = [];

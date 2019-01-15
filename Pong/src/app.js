@@ -1,17 +1,5 @@
-
-var BackLayer = cc.Layer.extend({
-    spriteBack:null,
-    ctor:function () {
-        this._super();
-
-        this.spriteBack = cc.Sprite.create( res.pongbg_png );
-        this.spriteBack.setScale(cc.winSize.width/this.spriteBack.width, cc.winSize.height/this.spriteBack.height);
-        this.spriteBack.setPosition(cc.winSize.width/2,cc.winSize.height/2);
-        this.addChild( this.spriteBack );
-
-        return true;
-    }
-});
+scorePlayer=0;
+scoreCPU=0;
 
 var GameLayer = cc.Layer.extend({
     spriteBall:null,
@@ -22,6 +10,7 @@ var GameLayer = cc.Layer.extend({
     speedBallY:null,
     upperBound:null,
     lowerBound:null,
+
     ctor:function () {
 
         this._super();
@@ -79,6 +68,16 @@ var GameLayer = cc.Layer.extend({
         }
     },
 
+    score: function (){
+        if (this.spriteBall.x > this.spriteCPU.x){
+            this.spriteBall.setPosition(cc.winSize.width/2,cc.winSize.height/2);
+            scorePlayer = scorePlayer + 1;
+        } else if (this.spriteBall.x < this.spritePlayer.x){
+            this.spriteBall.setPosition(cc.winSize.width/2,cc.winSize.height/2);
+            scoreCPU = scoreCPU + 1;
+        }
+    },
+
 
 
     update: function (){
@@ -96,8 +95,36 @@ var GameLayer = cc.Layer.extend({
         this.spriteBall.y = this.spriteBall.y + this.speedBallY;
 
         // Punto
+        this.score();
+
+    }
+});
 
 
+var BackLayer = cc.Layer.extend({
+    spriteBack:null,
+    scoreBoard:null,
+    ctor:function () {
+        this._super();
+
+        this.spriteBack = cc.Sprite.create( res.pongbg_png );
+        this.spriteBack.setScale(cc.winSize.width/this.spriteBack.width, cc.winSize.height/this.spriteBack.height);
+        this.spriteBack.setPosition(cc.winSize.width/2,cc.winSize.height/2);
+        this.addChild( this.spriteBack );
+
+        this.scoreBoard = cc.LabelTTF.create("", res.font_ttf, 60, cc.TEXT_ALIGNMENT_CENTER, cc.TEXT_ALIGNMENT_CENTER);
+        this.scoreBoard.setPosition(cc.winSize.width/2,cc.winSize.height*4/5);
+        this.scoreBoard.retain();
+        this.addChild(this.scoreBoard);
+
+        this.scheduleUpdate();
+
+        return true;
+    },
+
+    update:function(){
+        this.scoreBoard.setString(scorePlayer + "          " + scoreCPU);
+        //console.log(cc.Node.speedPlayer);
     }
 });
 
