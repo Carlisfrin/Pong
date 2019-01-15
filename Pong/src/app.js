@@ -12,18 +12,21 @@ var MenuLayer = cc.LayerColor.extend({
     menu:null,
     resumeButton:null,
     mediumButton:null,
+    hardButton:null,
 
     init:function(){
 
         this.resumeButton = new cc.MenuItemFont("RESUME", this.pressResume, this);
-        this.easyButton = new cc.MenuItemFont("CHANGE TO EASY", this.pressEasy, this);
-        this.mediumButton = new cc.MenuItemFont("CHANGE TO MEDIUM", this.pressMedium, this);
+        this.easyButton = new cc.MenuItemFont("CHANGE TO EASY MODE", this.pressEasy, this);
+        this.mediumButton = new cc.MenuItemFont("CHANGE TO MEDIUM MODE", this.pressMedium, this);
+        this.hardButton = new cc.MenuItemFont("CHANGE TO HARD MODE", this.pressHard, this);
 
-        this.resumeButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+50);
-        this.easyButton.setPosition(cc.winSize.width/2,cc.winSize.height/2);
-        this.mediumButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-50);
+        this.resumeButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+75);
+        this.easyButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+25);
+        this.mediumButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-25);
+        this.hardButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-75);
 
-        this.menu = new cc.Menu(this.resumeButton, this.mediumButton, this.easyButton);
+        this.menu = new cc.Menu(this.resumeButton, this.easyButton, this.mediumButton, this.hardButton);
         this.menu.setPosition(0,0);
 
         this.addChild(this.menu);
@@ -46,6 +49,13 @@ var MenuLayer = cc.LayerColor.extend({
         scorePlayer=0;
         scoreCPU=0;
         difficulty = difficulty_level.MEDIUM;
+        this.removeFromParent();
+    },
+    pressHard:function () {
+        // Volver a ejecutar la escena Principal
+        scorePlayer=0;
+        scoreCPU=0;
+        difficulty = difficulty_level.HARD;
         this.removeFromParent();
     }
 });
