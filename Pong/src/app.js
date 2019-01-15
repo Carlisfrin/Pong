@@ -1,11 +1,11 @@
 scorePlayer=0;
 scoreCPU=0;
-/*var difficulty_level = {
+var difficulty_level = {
   EASY: 1,
   MEDIUM: 2,
   HARD: 3,
 };
-difficulty = difficulty_level.EASY;*/
+difficulty = difficulty_level.EASY;
 
 var GameLayer = cc.Layer.extend({
     spriteBall:null,
@@ -79,9 +79,17 @@ var GameLayer = cc.Layer.extend({
         if (this.spriteBall.x > this.spriteCPU.x){
             this.spriteBall.setPosition(cc.winSize.width/2,cc.winSize.height/2);
             scorePlayer = scorePlayer + 1;
+            if (difficulty==difficulty_level.EASY){
+                this.spriteCPU.y = cc.winSize.height/2;
+                this.speedBallY = 4;
+            }
         } else if (this.spriteBall.x < this.spritePlayer.x){
             this.spriteBall.setPosition(cc.winSize.width/2,cc.winSize.height/2);
             scoreCPU = scoreCPU + 1;
+            if (difficulty==difficulty_level.EASY){
+                this.spriteCPU.y = cc.winSize.height/2;
+                this.speedBallY = 4;
+            }
         }
     },
 
@@ -95,16 +103,31 @@ var GameLayer = cc.Layer.extend({
         }
 
         // Movimiento CPU
-        if (this.speedBallX<0){
-            this.speedCPU = 0;
-        } else if (this.speedBallY+this.spriteBall.y>this.spriteCPU.y+this.spriteCPU.height/2){
-            console.log("up: "+this.speedBallY+" "+this.spriteBall.y+" "+this.spriteCPU.y+" "+this.spriteCPU.height/2);
-            this.speedCPU = 4;
-        } else if (this.speedBallY+this.spriteBall.y<this.spriteCPU.y-this.spriteCPU.height/2){
-            console.log("down: "+this.speedBallY+" "+this.spriteBall.y+" "+this.spriteCPU.y+" "+this.spriteCPU.height/2);
-            this.speedCPU = -4;
-        } else {
-            this.speedCPU = 0;
+        switch (difficulty){
+            case difficulty_level.EASY:
+                if (this.speedBallX<0){
+                    this.speedCPU = 0;
+                } else if (this.speedBallY>0){
+                    this.speedCPU = 3;
+                } else if (this.speedBallY<0){
+                    this.speedCPU = -3;
+                } else {
+                    this.speedCPU = 0;
+                }
+                break;
+            case difficulty_level.MEDIUM:
+                if (this.speedBallX<0){
+                    this.speedCPU = 0;
+                } else if (this.spriteBall.y>this.spriteCPU.y){
+                    this.speedCPU = 4;
+                } else if (this.spriteBall.y<this.spriteCPU.y){
+                    this.speedCPU = -4;
+                } else {
+                    this.speedCPU = 0;
+                }
+                break;
+            case difficulty_level.HARD:
+                break;
         }
         if (((this.spriteCPU.y + this.speedCPU + this.spriteCPU.height/2) < this.upperBound) && ((this.spriteCPU.y + this.speedCPU - this.spriteCPU.height/2) > this.lowerBound)) {
             this.spriteCPU.y = this.spriteCPU.y + this.speedCPU;
