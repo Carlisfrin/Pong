@@ -1,5 +1,11 @@
 scorePlayer=0;
 scoreCPU=0;
+/*var difficulty_level = {
+  EASY: 1,
+  MEDIUM: 2,
+  HARD: 3,
+};
+difficulty = difficulty_level.EASY;*/
 
 var GameLayer = cc.Layer.extend({
     spriteBall:null,
@@ -10,7 +16,7 @@ var GameLayer = cc.Layer.extend({
     speedBallY:null,
     upperBound:null,
     lowerBound:null,
-
+    speedCPU:null,
     ctor:function () {
 
         this._super();
@@ -28,8 +34,9 @@ var GameLayer = cc.Layer.extend({
         this.addChild( this.spriteCPU );
 
         this.speedPlayer = 0;
-        this.speedBallX = 1;
-        this.speedBallY = 1;
+        this.speedCPU = 0;
+        this.speedBallX = 4;
+        this.speedBallY = 4;
 
         this.upperBound = cc.winSize.height - this.spritePlayer.height;
         this.lowerBound = this.spritePlayer.height;
@@ -51,10 +58,10 @@ var GameLayer = cc.Layer.extend({
 
         cc.director.resume();
         if (keyCode==38){
-            event.getCurrentTarget().speedPlayer = 4;
+            event.getCurrentTarget().speedPlayer = 8;
         }
         if (keyCode==40){
-            event.getCurrentTarget().speedPlayer = -4;
+            event.getCurrentTarget().speedPlayer = -8;
         }
         if (keyCode==27){
             cc.director.pause();
@@ -82,10 +89,28 @@ var GameLayer = cc.Layer.extend({
 
     update: function (){
 
-        // Colisión jugador-pared
+        // Movimiento jugador
         if (((this.spritePlayer.y + this.speedPlayer + this.spritePlayer.height/2) < this.upperBound) && ((this.spritePlayer.y + this.speedPlayer - this.spritePlayer.height/2) > this.lowerBound)) {
             this.spritePlayer.y = this.spritePlayer.y + this.speedPlayer;
         }
+
+        // Movimiento CPU
+        if (this.speedBallX<0){
+            this.speedCPU = 0;
+        } else if (this.speedBallY+this.spriteBall.y>this.spriteCPU.y+this.spriteCPU.height/2){
+            console.log("up: "+this.speedBallY+" "+this.spriteBall.y+" "+this.spriteCPU.y+" "+this.spriteCPU.height/2);
+            this.speedCPU = 4;
+        } else if (this.speedBallY+this.spriteBall.y<this.spriteCPU.y-this.spriteCPU.height/2){
+            console.log("down: "+this.speedBallY+" "+this.spriteBall.y+" "+this.spriteCPU.y+" "+this.spriteCPU.height/2);
+            this.speedCPU = -4;
+        } else {
+            this.speedCPU = 0;
+        }
+        if (((this.spriteCPU.y + this.speedCPU + this.spriteCPU.height/2) < this.upperBound) && ((this.spriteCPU.y + this.speedCPU - this.spriteCPU.height/2) > this.lowerBound)) {
+            this.spriteCPU.y = this.spriteCPU.y + this.speedCPU;
+        }
+
+
         // Colisión pelota-pared
         if (((this.spriteBall.y + this.speedBallY + this.spriteBall.height/2) > this.upperBound) || ((this.spriteBall.y + this.speedBallY - this.spriteBall.height/2) < this.lowerBound)) {
             this.speedBallY = -1 * this.speedBallY;
@@ -137,7 +162,6 @@ var BackLayer = cc.Layer.extend({
 
     update:function(){
         this.scoreBoard.setString(scorePlayer + "          " + scoreCPU);
-        //console.log(cc.Node.speedPlayer);
     }
 });
 
