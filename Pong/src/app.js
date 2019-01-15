@@ -9,29 +9,25 @@ difficulty = difficulty_level.EASY;
 
 
 var MenuLayer = cc.LayerColor.extend({
-    menu:null,
-    resumeButton:null,
-    mediumButton:null,
-    hardButton:null,
 
     init:function(){
 
         // Creates the buttons
-        this.resumeButton = new cc.MenuItemFont("RESUME", this.pressResume, this);
-        this.easyButton = new cc.MenuItemFont("CHANGE TO EASY MODE", this.pressEasy, this);
-        this.mediumButton = new cc.MenuItemFont("CHANGE TO MEDIUM MODE", this.pressMedium, this);
-        this.hardButton = new cc.MenuItemFont("CHANGE TO HARD MODE", this.pressHard, this);
+        var resumeButton = new cc.MenuItemFont("RESUME", this.pressResume, this);
+        var easyButton = new cc.MenuItemFont("CHANGE TO EASY MODE", this.pressEasy, this);
+        var mediumButton = new cc.MenuItemFont("CHANGE TO MEDIUM MODE", this.pressMedium, this);
+        var hardButton = new cc.MenuItemFont("CHANGE TO HARD MODE", this.pressHard, this);
 
         // Sets the position of the buttons
-        this.resumeButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+75);
-        this.easyButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+25);
-        this.mediumButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-25);
-        this.hardButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-75);
+        resumeButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+75);
+        easyButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+25);
+        mediumButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-25);
+        hardButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-75);
 
         // Creates the menu
-        this.menu = new cc.Menu(this.resumeButton, this.easyButton, this.mediumButton, this.hardButton);
-        this.menu.setPosition(0,0);
-        this.addChild(this.menu);
+        var menu = new cc.Menu(resumeButton, easyButton, mediumButton, hardButton);
+        menu.setPosition(0,0);
+        this.addChild(menu);
 
         return this;
     },
@@ -199,6 +195,18 @@ var GameLayer = cc.Layer.extend({
                 break;
             case difficulty_level.HARD:
                 // CPU moves like in medium but tries to hit the ball with the side
+                console.log(this.spriteCPU.x+" "+this.spriteBall.x);
+                if (this.speedBallX<0){
+                    this.speedCPU = 0;
+                } else if (this.spriteBall.y>this.spriteCPU.y){
+                    this.speedCPU = 4;
+                } else if (this.spriteBall.y<this.spriteCPU.y){
+                    this.speedCPU = -4;
+                } else if (this.spriteCPU.x-this.spriteBall.x<4) {
+                    this.speedCPU = -2;
+                } else {
+                    this.speedCPU = 0;
+                }
                 break;
         }
         if (((this.spriteCPU.y + this.speedCPU + this.spriteCPU.height/2) < this.upperBound) && ((this.spriteCPU.y + this.speedCPU - this.spriteCPU.height/2) > this.lowerBound)) {
@@ -235,16 +243,15 @@ var GameLayer = cc.Layer.extend({
 
 
 var BackLayer = cc.Layer.extend({
-    spriteBack:null,
     scoreBoard:null,
     ctor:function () {
         this._super();
 
         // Background sprite
-        this.spriteBack = cc.Sprite.create( res.pongbg_png );
-        this.spriteBack.setScale(cc.winSize.width/this.spriteBack.width, cc.winSize.height/this.spriteBack.height);
-        this.spriteBack.setPosition(cc.winSize.width/2,cc.winSize.height/2);
-        this.addChild( this.spriteBack );
+        var spriteBack = cc.Sprite.create( res.pongbg_png );
+        spriteBack.setScale(cc.winSize.width/spriteBack.width, cc.winSize.height/spriteBack.height);
+        spriteBack.setPosition(cc.winSize.width/2,cc.winSize.height/2);
+        this.addChild( spriteBack );
 
         // Scoreboard sprite
         this.scoreBoard = cc.LabelTTF.create("", res.font_ttf, 60, cc.TEXT_ALIGNMENT_CENTER, cc.TEXT_ALIGNMENT_CENTER);
