@@ -7,6 +7,49 @@ var difficulty_level = {
 };
 difficulty = difficulty_level.EASY;
 
+
+var MenuLayer = cc.LayerColor.extend({
+    menu:null,
+    resumeButton:null,
+    mediumButton:null,
+
+    init:function(){
+
+        this.resumeButton = new cc.MenuItemFont("RESUME", this.pressResume, this);
+        this.easyButton = new cc.MenuItemFont("CHANGE TO EASY", this.pressEasy, this);
+        this.mediumButton = new cc.MenuItemFont("CHANGE TO MEDIUM", this.pressMedium, this);
+
+        this.resumeButton.setPosition(cc.winSize.width/2,cc.winSize.height/2+50);
+        this.easyButton.setPosition(cc.winSize.width/2,cc.winSize.height/2);
+        this.mediumButton.setPosition(cc.winSize.width/2,cc.winSize.height/2-50);
+
+        this.menu = new cc.Menu(this.resumeButton, this.mediumButton, this.easyButton);
+        this.menu.setPosition(0,0);
+
+        this.addChild(this.menu);
+
+        return this;
+    },
+    pressResume:function () {
+        // Volver a ejecutar la escena Principal
+        this.removeFromParent();
+    },
+    pressEasy:function () {
+        // Volver a ejecutar la escena Principal
+        scorePlayer=0;
+        scoreCPU=0;
+        difficulty = difficulty_level.EASY;
+        this.removeFromParent();
+    },
+    pressMedium:function () {
+        // Volver a ejecutar la escena Principal
+        scorePlayer=0;
+        scoreCPU=0;
+        difficulty = difficulty_level.MEDIUM;
+        this.removeFromParent();
+    }
+});
+
 var GameLayer = cc.Layer.extend({
     spriteBall:null,
     spritePlayer:null,
@@ -65,6 +108,9 @@ var GameLayer = cc.Layer.extend({
         }
         if (keyCode==27){
             cc.director.pause();
+            var layerMenu = new MenuLayer();
+            layerMenu.init();
+            cc.director.getRunningScene().addChild(layerMenu);
         }
     },
 
@@ -168,14 +214,15 @@ var BackLayer = cc.Layer.extend({
     ctor:function () {
         this._super();
 
+        // Background sprite
         this.spriteBack = cc.Sprite.create( res.pongbg_png );
         this.spriteBack.setScale(cc.winSize.width/this.spriteBack.width, cc.winSize.height/this.spriteBack.height);
         this.spriteBack.setPosition(cc.winSize.width/2,cc.winSize.height/2);
         this.addChild( this.spriteBack );
 
+        // Scoreboard sprite
         this.scoreBoard = cc.LabelTTF.create("", res.font_ttf, 60, cc.TEXT_ALIGNMENT_CENTER, cc.TEXT_ALIGNMENT_CENTER);
         this.scoreBoard.setPosition(cc.winSize.width/2,cc.winSize.height*4/5);
-        this.scoreBoard.retain();
         this.addChild(this.scoreBoard);
 
         this.scheduleUpdate();
@@ -184,9 +231,11 @@ var BackLayer = cc.Layer.extend({
     },
 
     update:function(){
+        // Scoreboard update
         this.scoreBoard.setString(scorePlayer + "          " + scoreCPU);
     }
 });
+
 
 var GameScene = cc.Scene.extend({
     onEnter:function () {
